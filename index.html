@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b3b82">
+<title>Mi DeCA</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eef1f5;color:#18202a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{background:#0b3b82;color:#fff;padding:16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 8px #0002}
+header h1{margin:0;font-size:24px}header p{margin:3px 0 0;font-size:12px;opacity:.8}
+main{max-width:780px;margin:auto;padding:14px}.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 1px 5px #0001}
+h2{font-size:18px;margin:0 0 12px;color:#0b3b82}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:12px;font-weight:700;color:#4b5563;margin:10px 0 5px}
+input,textarea,select{width:100%;border:1px solid #ccd3dc;border-radius:9px;padding:11px;font-size:16px;background:#fff}
+button{border:0;border-radius:10px;padding:12px 15px;font-size:16px;font-weight:700}.primary{background:#0b3b82;color:#fff;width:100%;margin-top:14px}.secondary{background:#e8edf4;color:#18324f}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1;min-width:135px;margin-top:9px}
+.hidden{display:none}.notice{font-size:12px;background:#fff7e8;color:#8a5200;padding:10px;border-radius:9px;margin-top:10px}
+.doc{background:#fff;border:1px solid #d8d8d8;box-shadow:0 3px 12px #0002;padding:26px;margin-top:8px}
+.brand{font-weight:900;color:#0b4aa0;font-size:22px}.brand span{font-weight:500;font-size:13px}
+.topgrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:10px;background:#f1f0e9;padding:14px;margin-top:14px}
+.k{font-size:9px;color:#777;text-transform:uppercase}.v{font-size:15px;font-weight:800;margin-top:5px}.pill{border:1px solid #56739a;padding:5px 8px;color:#31557f;font-size:10px;font-weight:800;display:inline-block}
+.line{height:3px;background:#123f7d;margin:18px 0}.parts{display:grid;grid-template-columns:1fr 1fr;gap:22px}.part{min-height:130px}.part h3{font-size:11px;color:#17488b;margin:0 0 7px}.part b{font-size:17px}.part small{display:block;color:#666;margin-top:5px}.route{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:12px}.route h3{font-size:10px;margin:0 0 6px}.route .dot:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#1554a0;margin-right:7px}.cargo{display:grid;grid-template-columns:1fr 1fr;border:1px solid #cfcfcf;margin-top:12px}.cell{padding:11px;border-bottom:1px solid #cfcfcf}.cell:nth-child(odd){border-right:1px solid #cfcfcf}.cell:nth-last-child(-n+2){border-bottom:0}.cell label{font-size:9px;font-weight:500;margin:0 0 4px;color:#777;text-transform:uppercase}.cell div{font-weight:800;font-size:14px}.verify{margin-top:26px;background:#f1f0e9;padding:15px;display:grid;grid-template-columns:1fr 155px;gap:10px;align-items:center}.verify h3{margin:0;font-size:11px}.verify b{font-size:15px}.verify a{font-size:10px;word-break:break-all;color:#0b4aa0}.qr{width:145px;height:145px;margin:auto}.foot{font-size:9px;color:#777;margin-top:8px}
+.hist{border:1px solid #e1e5ea;border-radius:10px;padding:11px;margin-top:8px}.hist strong{display:block}.muted{color:#6b7280;font-size:12px}
+@media(max-width:560px){.grid,.topgrid,.parts,.route,.verify{grid-template-columns:1fr}.cargo{grid-template-columns:1fr}.cell:nth-child(odd){border-right:0}.cell{border-bottom:1px solid #cfcfcf}.cell:last-child{border-bottom:0}}
+@media print{header,#formcard,.history,.no-print{display:none!important}body{background:#fff}.doc{box-shadow:none;border:0;margin:0}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<header><h1>Mi DeCA</h1><p>Documento electrónico de control administrativo</p></header>
+<main>
+<section class="card no-print" id="repoSettings">
+<h2>Repositorio de documentos</h2>
+<p class="muted">Aquí pondremos la dirección de Internet donde se alojarán los DeCA. De momento queda en modo de prueba.</p>
+<label>Dirección base HTTPS</label>
+<input id="repoBase" placeholder="https://tu-dominio.example/deca/">
+<div class="row">
+<button class="secondary" onclick="guardarRepo()">GUARDAR DIRECCIÓN</button>
+<button class="secondary" onclick="restaurarRepoDemo()">USAR MODO PRUEBA</button>
+</div>
+<div class="notice">No cambies esta dirección para usarla en carretera hasta que el repositorio real esté configurado y comprobado.</div>
+</section>
+
+
+
+
+<section class="card" id="defaults">
+<h2>Mis datos habituales</h2>
+<div class="grid">
+<div><label>Transportista efectivo</label><input id="d_transportista"></div>
+<div><label>NIF / VAT transportista</label><input id="d_nifTransportista"></div>
+<div><label>Domicilio transportista</label><input id="d_domTransportista"></div>
+<div><label>Matrícula tractora</label><input id="d_tractora"></div>
+<div><label>Matrícula remolque</label><input id="d_remolque"></div>
+<div><label>Cargador habitual</label><input id="d_cargador"></div>
+<div><label>NIF / VAT cargador</label><input id="d_nifCargador"></div>
+<div><label>Domicilio cargador</label><input id="d_domCargador"></div>
+</div>
+<div class="row">
+<button class="secondary" onclick="guardarDatos()">GUARDAR MIS DATOS</button>
+<button class="secondary" onclick="cargarDatos()">CARGAR MIS DATOS</button>
+</div>
+</section>
+
+
+<section class="card" id="formcard">
+<h2>Nuevo DeCA</h2>
+<div class="row no-print" style="margin-bottom:8px">
+<button class="secondary" onclick="guardarBorrador()">GUARDAR BORRADOR</button>
+<button class="secondary" onclick="cargarBorrador()">RECUPERAR BORRADOR</button>
+<button class="secondary" onclick="nuevoFormulario()">NUEVO DECA</button>
+</div>
+
+<div class="grid">
+<div><label>Referencia (automática)</label><input id="ref" readonly placeholder="Se genera al crear"></div>
+<div><label>Estado</label><select id="estado"><option>DOCUMENTO VIGENTE</option><option>ANULADO</option><option>MODIFICADO</option></select></div>
+</div>
+
+<h3>Partes del transporte</h3>
+<div class="grid">
+<div><label>Cargador contractual</label><input id="cargador" required></div>
+<div><label>NIF / VAT cargador</label><input id="nifCargador" required></div>
+<div><label>Domicilio cargador</label><input id="domCargador" required></div>
+<div><label>Transportista efectivo</label><input id="transportista" required></div>
+<div><label>NIF / VAT transportista</label><input id="nifTransportista" required></div>
+<div><label>Domicilio transportista</label><input id="domTransportista" required></div>
+</div>
+
+<h3>Ruta del transporte</h3>
+<div class="grid">
+<div><label>Lugar de carga</label><input id="cargaLugar" required></div>
+<div><label>Fecha de carga</label><input id="fechaCarga" type="date" required></div>
+<div><label>Hora de carga</label><input id="horaCarga" type="time"></div>
+<div><label>Lugar de entrega</label><input id="descargaLugar" required></div>
+<div><label>Fecha de entrega</label><input id="fechaDescarga" type="date" required></div>
+</div>
+
+<h3>Mercancía y vehículo</h3>
+<div class="grid">
+<div><label>Naturaleza de la mercancía</label><input id="mercancia" required></div>
+<div><label>Peso o medida</label><input id="peso" placeholder="Ej.: 5.000 kg" required></div>
+<div><label>Matrícula tractora</label><input id="tractora" required></div>
+<div><label>Matrícula remolque</label><input id="remolque" required></div>
+</div>
+<div class="grid">
+<div><label>Autorización especial (si procede)</label><input id="autorizacion"></div>
+<div><label>Observaciones</label><input id="obs"></div>
+</div>
+<button class="primary" id="generateBtn" onclick="revisarAntesDeGenerar()">REVISAR Y GENERAR DECA</button>
+<button class="secondary" id="modifySaveBtn" style="display:none;width:100%;margin-top:9px" onclick="guardarModificacion()">GUARDAR MODIFICACIÓN</button>
+<div class="notice">Prototipo visual. El QR y la URL son todavía de prueba hasta conectar el repositorio HTTPS definitivo.</div>
+</section>
+
+
+<section class="card hidden" id="review">
+<h2>Revisar antes de generar</h2>
+<div id="reviewContent"></div>
+<div class="row no-print">
+<button class="primary" onclick="confirmarGeneracion()">CONFIRMAR Y GENERAR DECA</button>
+<button class="secondary" onclick="cancelarRevision()">VOLVER A EDITAR</button>
+</div>
+</section>
+
+<section class="card hidden" id="result">
+<h2>DeCA generado</h2><div id="documento"></div>
+<div class="row no-print">
+<button class="primary" onclick="generarPDF()">GENERAR PDF</button>
+<button class="secondary" onclick="window.print()">IMPRIMIR</button>
+<button class="secondary" onclick="shareCurrent()">COMPARTIR</button>
+</div>
+</section>
+
+<section class="card history">
+<h2>Historial</h2><div id="historial"></div>
+</section>
+</main>
+
+<script>
+const $=x=>document.getElementById(x);
+let actual=null;
+function nuevoRef(){return "DECA-"+Math.random().toString(36).slice(2,10).toUpperCase()}
+function fechaES(x){if(!x)return"";let [a,m,d]=x.split("-");return `${a}-${m}-${d}`}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+function guardarDatos(){
+ const d={
+   transportista:$("d_transportista").value.trim(),
+   nifTransportista:$("d_nifTransportista").value.trim(),
+   domTransportista:$("d_domTransportista").value.trim(),
+   tractora:$("d_tractora").value.trim(),
+   remolque:$("d_remolque").value.trim(),
+   cargador:$("d_cargador").value.trim(),
+   nifCargador:$("d_nifCargador").value.trim(),
+   domCargador:$("d_domCargador").value.trim()
+ };
+ localStorage.setItem("mi_deca_defaults",JSON.stringify(d));
+ aplicarDatos(d);
+ alert("Tus datos habituales se han guardado.");
+}
+function cargarDatos(){
+ const d=JSON.parse(localStorage.getItem("mi_deca_defaults")||"null");
+ if(!d){alert("Todavía no hay datos habituales guardados.");return;}
+ ["transportista","nifTransportista","domTransportista","tractora","remolque","cargador","nifCargador","domCargador"].forEach(k=>{
+   $("d_"+k).value=d[k]||"";
+ });
+ aplicarDatos(d);
+}
+function aplicarDatos(d){
+ $("transportista").value=d.transportista||"";
+ $("nifTransportista").value=d.nifTransportista||"";
+ $("domTransportista").value=d.domTransportista||"";
+ $("tractora").value=d.tractora||"";
+ $("remolque").value=d.remolque||"";
+ $("cargador").value=d.cargador||"";
+ $("nifCargador").value=d.nifCargador||"";
+ $("domCargador").value=d.domCargador||"";
+}
+function inicializarDatos(){
+ const d=JSON.parse(localStorage.getItem("mi_deca_defaults")||"null");
+ if(d){
+   ["transportista","nifTransportista","domTransportista","tractora","remolque","cargador","nifCargador","domCargador"].forEach(k=>{
+     $("d_"+k).value=d[k]||"";
+   });
+   aplicarDatos(d);
+ }
+}
+
+
+function revisarAntesDeGenerar(){
+ const ids=["cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista",
+ "cargaLugar","fechaCarga","descargaLugar","fechaDescarga","mercancia","peso","tractora","remolque"];
+ if(ids.some(x=>!$(x).value.trim())){alert("Faltan campos obligatorios. Revisa los campos marcados.");return;}
+ const r=[
+ ["Cargador", $("cargador").value],
+ ["Transportista", $("transportista").value],
+ ["Carga", $("cargaLugar").value+" · "+$("fechaCarga").value+($("horaCarga").value?" · "+$("horaCarga").value:"")],
+ ["Entrega", $("descargaLugar").value+" · "+$("fechaDescarga").value+($("horaDescarga").value?" · "+$("horaDescarga").value:"")],
+ ["Mercancía", $("mercancia").value],
+ ["Peso/medida", $("peso").value],
+ ["Tractora", $("tractora").value],
+ ["Remolque", $("remolque").value]
+ ];
+ $("reviewContent").innerHTML=r.map(x=>`<div style="padding:9px 0;border-bottom:1px solid #e5e7eb"><span class="muted">${esc(x[0])}</span><br><b>${esc(x[1])}</b></div>`).join("");
+ $("review").classList.remove("hidden");
+ window.scrollTo({top:$("review").offsetTop-70,behavior:"smooth"});
+}
+function cancelarRevision(){
+ $("review").classList.add("hidden");
+ window.scrollTo({top:$("formcard").offsetTop-70,behavior:"smooth"});
+}
+function confirmarGeneracion(){
+ $("review").classList.add("hidden");
+ generar();
+}
+
+function generar(){
+ const ids=["cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista","cargaLugar","fechaCarga","descargaLugar","fechaDescarga","mercancia","peso","tractora","remolque"];
+ if(ids.some(x=>!$(x).value.trim())){alert("Completa todos los campos obligatorios.");return}
+ actual={};$("generateBtn").style.display="block";$("modifySaveBtn").style.display="none";
+ ["estado",...ids,"autorizacion","obs"].forEach(x=>actual[x]=$(x).value.trim());
+ actual.ref=nuevoRef();actual.emitido=new Date().toISOString();actual.modified=actual.emitido;
+ $("ref").value=actual.ref;
+ let a=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]");a.unshift(actual);localStorage.setItem("mi_deca_hist",JSON.stringify(a));
+ render(actual);historial();inicializarDatos();prepararFechas();cargarRepoUI();
+}
+function render(d){
+ const url="https://REPOSITORIO-PENDIENTE.example/deca/"+encodeURIComponent(d.ref)+".pdf";
+ $("documento").innerHTML=`<div class="doc">
+ <div class="brand">DECA <span>PROFESIONAL</span></div>
+ <div style="font-size:11px;color:#777">Documento Electrónico de Control Administrativo</div>
+ <div class="topgrid"><div><div class="k">Referencia</div><div class="v">${esc(d.ref)}</div></div><div><div class="k">Emitido</div><div class="v">${esc(d.emitido.replace("T"," ").replace("Z"," UTC"))}</div></div><div><div class="k">Estado</div><div class="pill">${esc(d.estado)}</div></div></div>
+ <div class="line"></div>
+ <h4>PARTES DEL TRANSPORTE</h4>
+ <div class="parts">
+ <div class="part"><h3>CARGADOR CONTRACTUAL</h3><b>${esc(d.cargador)}</b><small>NIF / VAT<br>${esc(d.nifCargador)}</small><small>Domicilio<br>${esc(d.domCargador)}</small></div>
+ <div class="part"><h3>TRANSPORTISTA EFECTIVO</h3><b>${esc(d.transportista)}</b><small>NIF / VAT<br>${esc(d.nifTransportista)}</small><small>Domicilio<br>${esc(d.domTransportista)}</small></div></div>
+ <h4>RUTA DEL TRANSPORTE</h4>
+ <div class="route">
+ <div><h3 class="dot">LUGAR DE CARGA</h3><b>${esc(d.cargaLugar)}</b><small>Fecha de carga <b>${fechaES(d.fechaCarga)}</b>${d.horaCarga?` · Hora <b>${esc(d.horaCarga)}</b>`:""}</small></div>
+ <div><h3 class="dot">LUGAR DE ENTREGA</h3><b>${esc(d.descargaLugar)}</b><small>Fecha de entrega <b>${fechaES(d.fechaDescarga)}</b></small></div></div>
+ <h4>MERCANCÍA Y VEHÍCULO</h4>
+ <div class="cargo"><div class="cell"><label>Naturaleza de la mercancía</label><div>${esc(d.mercancia)}</div></div><div class="cell"><label>Peso o medida</label><div>${esc(d.peso)}</div></div><div class="cell"><label>Matrícula tractora</label><div>${esc(d.tractora)}</div></div><div class="cell"><label>Matrícula remolque</label><div>${esc(d.remolque)}</div></div></div>
+ ${d.autorizacion||d.obs?`<div class="foot">${d.autorizacion?`Autorización especial: ${esc(d.autorizacion)} · `:""}${d.obs?`Observaciones: ${esc(d.obs)}`:""}</div>`:""}
+ <div class="verify"><div><h3>VERIFICACIÓN PÚBLICA</h3><b>${esc(d.ref)}</b><br><a>${esc(url)}</a><div class="foot">Creado: ${esc(d.emitido)}${d.modified&&d.modified!==d.emitido?`<br>Modificado: ${esc(d.modified)}`:""}<br>Mi DeCA · Versión 9</div></div><div id="qr" class="qr"></div></div>
+ </div>`;
+ new QRCode($("qr"),{text:url,width:145,height:145});
+ $("result").classList.remove("hidden");window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+
+const FORM_KEYS=["estado","cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista",
+"cargaLugar","fechaCarga","horaCarga","descargaLugar","fechaDescarga","horaDescarga","mercancia","peso","tractora",
+"remolque","autorizacion","obs"];
+function recogerFormulario(){
+ const d={};
+ FORM_KEYS.forEach(k=>{if($(k))d[k]=$(k).value;});
+ return d;
+}
+function guardarBorrador(){
+ const d=recogerFormulario();
+ localStorage.setItem("mi_deca_draft",JSON.stringify(d));
+ alert("Borrador guardado en este dispositivo.");
+}
+function cargarBorrador(){
+ const d=JSON.parse(localStorage.getItem("mi_deca_draft")||"null");
+ if(!d){alert("No hay ningún borrador guardado.");return;}
+ FORM_KEYS.forEach(k=>{if($(k)&&d[k]!==undefined)$(k).value=d[k];});
+ prepararFechas();
+ alert("Borrador recuperado. Revísalo antes de generar el DeCA.");
+}
+function nuevoFormulario(){
+ FORM_KEYS.forEach(k=>{if($(k))$(k).value="";});
+ $("estado").value="DOCUMENTO VIGENTE";
+ $("ref").value="";
+ $("generateBtn").style.display="block";
+ $("modifySaveBtn").style.display="none";
+ prepararFechas();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+
+function cargarRepoUI(){
+ const v=localStorage.getItem("mi_deca_repo_base")||"https://REPOSITORIO-PENDIENTE.example/deca/";
+ $("repoBase").value=v;
+}
+function guardarRepo(){
+ let v=$("repoBase").value.trim();
+ if(!/^https:\/\//i.test(v)){alert("La dirección debe empezar por https://");return;}
+ if(!v.endsWith("/"))v+="/";
+ localStorage.setItem("mi_deca_repo_base",v);
+ alert("Dirección guardada. Los próximos QR usarán esta dirección.");
+}
+function restaurarRepoDemo(){
+ const v="https://REPOSITORIO-PENDIENTE.example/deca/";
+ localStorage.setItem("mi_deca_repo_base",v);
+ $("repoBase").value=v;
+}
+
+function prepararFechas(){
+ const hoy=new Date().toISOString().slice(0,10);
+ const fc=$("fechaCarga"), fd=$("fechaDescarga");
+ if(!fc.value) fc.value=hoy;
+ fd.min=fc.value;
+ if(!fd.value) fd.value=fc.value;
+ fc.addEventListener("change",()=>{fd.min=fc.value;if(fd.value<fc.value)fd.value=fc.value;});
+}
+function historial(){
+ const a=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]");
+ $("historial").innerHTML=a.length?a.map(d=>`<div class="hist"><strong>${esc(d.cargaLugar)} → ${esc(d.descargaLugar)}</strong><span class="muted">${esc(d.fechaCarga)} · ${esc(d.mercancia)} · ${esc(d.ref)}</span><br><button class="secondary" style="margin-top:7px" onclick='abrir("${d.ref}")'>Abrir</button>
+<button class="secondary" style="margin-top:7px" onclick='modificar("${d.ref}")'>MODIFICAR</button>
+<button class="secondary" style="margin-top:7px" onclick='duplicar("${d.ref}")'>USAR COMO PLANTILLA</button></div>`).join(""):"<span class='muted'>Todavía no hay DeCA.</span>";
+}
+function abrir(ref){const d=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]").find(x=>x.ref===ref);if(d){actual=d;render(d)}}
+function modificar(ref){
+ const a=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]");
+ const d=a.find(x=>x.ref===ref);
+ if(!d)return;
+ ["cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista","cargaLugar","descargaLugar","mercancia","peso","tractora","remolque","horaCarga","horaDescarga","autorizacion","obs"].forEach(k=>{if($(k))$(k).value=d[k]||""});
+ $("fechaCarga").value=d.fechaCarga||"";
+ $("fechaDescarga").value=d.fechaDescarga||"";
+ $("estado").value="MODIFICADO";
+ $("ref").value=d.ref;
+ $("generateBtn").style.display="none";$("modifySaveBtn").style.display="block";
+ actual=d;
+ window.scrollTo({top:0,behavior:"smooth"});
+ alert("Documento cargado para modificar. Al guardarlo se conservará la referencia y quedará registrada la fecha y hora de modificación.");
+}
+function guardarModificacion(){
+ if(!actual)return;
+ const a=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]");
+ const i=a.findIndex(x=>x.ref===actual.ref);
+ if(i<0)return;
+ const old={...a[i]};
+ const now=new Date().toISOString();
+ const d={...old};
+ ["estado","cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista","cargaLugar","fechaCarga","horaCarga","descargaLugar","fechaDescarga","horaDescarga","mercancia","peso","tractora","remolque","autorizacion","obs"].forEach(k=>{if($(k))d[k]=$(k).value.trim()});
+ d.modified=now;
+ d.modificationReason="Modificación del DeCA";
+ a[i]=d;
+ localStorage.setItem("mi_deca_hist",JSON.stringify(a));
+ actual=d;
+ render(d);
+ historial();
+ alert("Modificación guardada. La referencia se mantiene y la fecha/hora de modificación queda registrada.");
+}
+function duplicar(ref){
+ const d=JSON.parse(localStorage.getItem("mi_deca_hist")||"[]").find(x=>x.ref===ref);
+ if(!d)return;
+ ["cargador","nifCargador","domCargador","transportista","nifTransportista","domTransportista","cargaLugar","descargaLugar","mercancia","peso","tractora","remolque","horaCarga","horaDescarga","autorizacion","obs"].forEach(k=>{if($(k))$(k).value=d[k]||""});
+ $("fechaCarga").value=new Date().toISOString().slice(0,10);
+ prepararFechas();
+ $("fechaDescarga").value=$("fechaCarga").value;$("horaCarga").value=d.horaCarga||"";$("horaDescarga").value=d.horaDescarga||"";
+ window.scrollTo({top:0,behavior:"smooth"});
+ alert("Se ha cargado como plantilla. Revisa los datos y pulsa «Revisar y generar DeCA».");
+}
+
+async function generarPDF(){
+ if(!actual){alert("Primero genera o abre un DeCA.");return;}
+ if(!window.jspdf){alert("No se ha podido cargar el generador PDF. Comprueba la conexión a Internet.");return;}
+ const {jsPDF}=window.jspdf;
+ const pdf=new jsPDF({unit:"mm",format:"a4"});
+ const azul=[18,63,125], gris=[105,105,105], claro=[242,241,235];
+ const ref=actual.ref;
+ const REPO_BASE=(localStorage.getItem("mi_deca_repo_base")||"https://REPOSITORIO-PENDIENTE.example/deca/").replace(/\\/$/,"/");
+ const url=REPO_BASE+"/"+encodeURIComponent(ref)+".pdf";
+ const creado=actual.emitido || new Date().toISOString();
+ const mod=actual.modified || creado;
+
+ pdf.setProperties({
+   title:"DeCA "+ref,
+   subject:"Documento Electrónico de Control Administrativo",
+   author:"Mi DeCA",
+   creator:"Mi DeCA",
+   keywords:"DeCA, transporte, documento electrónico de control"
+ });
+
+ let y=18;
+ pdf.setTextColor(...azul);pdf.setFontSize(20);pdf.setFont(undefined,"bold");
+ pdf.text("DeCA",15,y);
+ pdf.setTextColor(70,70,70);pdf.setFontSize(9);pdf.setFont(undefined,"normal");
+ pdf.text("Documento Electrónico de Control Administrativo",15,y+6);
+
+ pdf.setFillColor(...claro);pdf.rect(15,y+12,180,24,"F");
+ pdf.setFontSize(8);pdf.setTextColor(...gris);pdf.text("REFERENCIA",20,y+18);
+ pdf.setFontSize(13);pdf.setTextColor(25,32,40);pdf.setFont(undefined,"bold");pdf.text(ref,20,y+25);
+ pdf.setFont(undefined,"normal");pdf.setFontSize(8);pdf.setTextColor(...gris);pdf.text("EMITIDO",105,y+18);
+ pdf.setFontSize(9);pdf.setTextColor(25,32,40);pdf.text(creado.replace("T"," ").replace("Z"," UTC"),105,y+25);
+ pdf.setTextColor(...gris);pdf.text("ESTADO",160,y+18);pdf.setTextColor(...azul);pdf.text(actual.estado||"DOCUMENTO VIGENTE",160,y+25);
+ y+=45;
+
+ function section(title){
+   pdf.setDrawColor(...azul);pdf.setLineWidth(.7);pdf.line(15,y,195,y);
+   y+=7;pdf.setTextColor(...azul);pdf.setFontSize(10);pdf.setFont(undefined,"bold");pdf.text(title,15,y);y+=7;
+   pdf.setFont(undefined,"normal");pdf.setTextColor(30,35,40);
+ }
+ function field(label,val,x,w){
+   pdf.setFontSize(7);pdf.setTextColor(...gris);pdf.text(label.toUpperCase(),x,y);
+   pdf.setFontSize(10);pdf.setTextColor(30,35,40);pdf.setFont(undefined,"bold");
+   const lines=pdf.splitTextToSize(String(val||""),w);
+   pdf.text(lines,x,y+5);pdf.setFont(undefined,"normal");
+   return Math.max(9,lines.length*4.5+5);
+ }
+
+ section("PARTES DEL TRANSPORTE");
+ let h1=field("Cargador contractual",actual.cargador,15,82);
+ field("Transportista efectivo",actual.transportista,110,82);
+ y+=15;
+ field("NIF / VAT cargador",actual.nifCargador,15,82);
+ field("NIF / VAT transportista",actual.nifTransportista,110,82);
+ y+=15;
+ field("Domicilio cargador",actual.domCargador,15,82);
+ field("Domicilio transportista",actual.domTransportista,110,82);
+ y+=16;
+
+ section("RUTA DEL TRANSPORTE");
+ field("Lugar de carga",actual.cargaLugar,15,82);
+ field("Lugar de entrega",actual.descargaLugar,110,82);
+ y+=15;
+ field("Fecha y hora de carga",`${fechaES(actual.fechaCarga)}${actual.horaCarga?" · "+actual.horaCarga:""}`,15,82);
+ field("Fecha y hora de entrega",`${fechaES(actual.fechaDescarga)}${actual.horaDescarga?" · "+actual.horaDescarga:""}`,110,82);
+ y+=16;
+
+ section("MERCANCÍA Y VEHÍCULO");
+ field("Naturaleza de la mercancía",actual.mercancia,15,82);
+ field("Peso o medida",actual.peso,110,82);
+ y+=15;
+ field("Matrícula tractora",actual.tractora,15,82);
+ field("Matrícula remolque",actual.remolque,110,82);
+ y+=16;
+
+ if(actual.autorizacion || actual.obs){
+   section("OTROS DATOS");
+   if(actual.autorizacion){field("Autorización especial",actual.autorizacion,15,82);y+=14;}
+   if(actual.obs){field("Observaciones",actual.obs,15,175);y+=14;}
+ }
+ section("VERIFICACIÓN");
+ pdf.setTextColor(30,35,40);pdf.setFontSize(9);pdf.text("URL asociada al documento:",15,y);
+ pdf.setTextColor(...azul);pdf.setFontSize(8);pdf.text(url,15,y+5);
+ y+=13;
+
+ # Create QR in a hidden canvas using QRCode, then add to PDF.
+ qrbox = document.createElement("div");
+ qrbox.style.position="fixed"; qrbox.style.left="-10000px"; qrbox.style.top="-10000px";
+ qrbox.style.width="160px"; qrbox.style.height="160px";
+ document.body.appendChild(qrbox);
+ new QRCode(qrbox,{text:url,width:160,height:160});
+ await new Promise(r=>setTimeout(r,150));
+ const canvas=qrbox.querySelector("canvas");
+ if(canvas){
+   pdf.addImage(canvas.toDataURL("image/png"),"PNG",150,y-2,40,40);
+ }
+ qrbox.remove();
+
+ pdf.setFontSize(7);pdf.setTextColor(...gris);
+ pdf.text("Creado: "+creado,15,280);
+ pdf.text("Modificado: "+mod,15,284);
+ pdf.text("Mi DeCA · PDF nativo generado localmente",15,288);
+
+ const safe=ref.replace(/[^A-Za-z0-9_-]/g,"_");
+ pdf.save(safe+".pdf");
+}
+
+async function shareCurrent(){if(!actual)return;let t=`DeCA ${actual.ref}\n${actual.cargaLugar} → ${actual.descargaLugar}\n${actual.mercancia}\n${actual.tractora} / ${actual.remolque}`;if(navigator.share)await navigator.share({title:"DeCA "+actual.ref,text:t});else alert(t)}
+historial();
+</script>
+</body></html>
