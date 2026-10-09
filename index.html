@@ -362,7 +362,7 @@ async function generarPDF(){
  const pdf=new jsPDF({unit:"mm",format:"a4"});
  const azul=[18,63,125], gris=[105,105,105], claro=[242,241,235];
  const ref=actual.ref;
- const REPO_BASE=(localStorage.getItem("mi_deca_repo_base")||"https://REPOSITORIO-PENDIENTE.example/deca/").replace(/\\/$/,"/");
+ const REPO_BASE=(localStorage.getItem("mi_deca_repo_base")||"https://REPOSITORIO-PENDIENTE.example/deca/").replace(/\/+$/,"");
  const url=REPO_BASE+"/"+encodeURIComponent(ref)+".pdf";
  const creado=actual.emitido || new Date().toISOString();
  const mod=actual.modified || creado;
