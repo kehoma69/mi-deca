@@ -245,7 +245,8 @@ function render(d){
  ${d.autorizacion||d.obs?`<div class="foot">${d.autorizacion?`Autorización especial: ${esc(d.autorizacion)} · `:""}${d.obs?`Observaciones: ${esc(d.obs)}`:""}</div>`:""}
  <div class="verify"><div><h3>VERIFICACIÓN PÚBLICA</h3><b>${esc(d.ref)}</b><br><a>${esc(url)}</a><div class="foot">Creado: ${esc(d.emitido)}${d.modified&&d.modified!==d.emitido?`<br>Modificado: ${esc(d.modified)}`:""}<br>Mi DeCA · Versión 9</div></div><div id="qr" class="qr"></div></div>
  </div>`;
- new QRCode($("qr"),{text:url,width:145,height:145});
+ $("qr").innerHTML="";
+new QRCode($("qr"),{text:url,width:145,height:145});
  $("result").classList.remove("hidden");window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
 }
 
