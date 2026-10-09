@@ -446,9 +446,12 @@ async function generarPDF(){
  qrbox.style.width="160px"; qrbox.style.height="160px";
  document.body.appendChild(qrbox);
  new QRCode(qrbox,{text:url,width:160,height:160});
- await new Promise(r=>setTimeout(r,150));
+ await new Promise(r=>setTimeout(r,500));
  const canvas=qrbox.querySelector("canvas");
- if(canvas){
+ const img=qrbox.querySelector("img");
+ const img=qrbox.querySelector("img");
+ 
+ if(canvas)
    pdf.addImage(canvas.toDataURL("image/png"),"PNG",150,y-2,40,40);
  }
  qrbox.remove();
