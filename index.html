@@ -440,21 +440,48 @@ async function generarPDF(){
  pdf.setTextColor(...azul);pdf.setFontSize(8);pdf.text(url,15,y+5);
  y+=13;
 
- const qrbox = document.createElement("div");
-
- qrbox.style.position="fixed"; qrbox.style.left="-10000px"; qrbox.style.top="-10000px";
- qrbox.style.width="160px"; qrbox.style.height="160px";
- document.body.appendChild(qrbox);
- new QRCode(qrbox,{text:url,width:160,height:160});
- await new Promise(r=>setTimeout(r,500));
- const canvas=qrbox.querySelector("canvas");
- const img=qrbox.querySelector("img");
- const img=qrbox.querySelector("img");
  
- if(canvas)
-   pdf.addImage(canvas.toDataURL("image/png"),"PNG",150,y-2,40,40);
- }
- qrbox.remove();
+const qrbox = document.createElement("div");
+qrbox.style.position = "fixed";
+qrbox.style.left = "-10000px";
+qrbox.style.top = "0";
+qrbox.style.width = "256px";
+qrbox.style.height = "256px";
+document.body.appendChild(qrbox);
+
+try {
+  new QRCode(qrbox, {
+    text: url,
+    width: 256,
+    height: 256,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+
+  await new Promise(r => setTimeout(r, 500));
+
+  const canvas = qrbox.querySelector("canvas");
+  const img = qrbox.querySelector("img");
+
+  if (canvas && canvas.width > 0) {
+    pdf.addImage(
+      canvas.toDataURL("image/png"),
+      "PNG",
+      155,
+      y - 2,
+      35,
+      35
+    );
+  } else if (img && img.src) {
+    pdf.addImage(img.src, "PNG", 155, y - 2, 35, 35);
+  } else {
+    throw new Error("No se pudo crear la imagen del QR");
+  }
+} finally {
+  qrbox.remove();
+}
+
+
+ 
 
  pdf.setFontSize(7);pdf.setTextColor(...gris);
  pdf.text("Creado: "+creado,15,280);
